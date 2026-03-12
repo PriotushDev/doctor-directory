@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\SpecialtyController;
 use App\Http\Controllers\Api\DoctorChamberController;
+use App\Http\Controllers\Api\AuthController;
 
 
 Route::get('/test', function () {
@@ -16,6 +17,8 @@ Route::get('/test', function () {
         'message' => 'API working'
     ]);
 });
+
+
 
 Route::apiResource('divisions', DivisionController::class);
 Route::apiResource('districts', DistrictController::class);
@@ -25,4 +28,10 @@ Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('doctor-chambers', DoctorChamberController::class);
 Route::apiResource('appointments', AppointmentController::class);
 
+Route::post('/register',[AuthController::class,'register']);
+Route::post('/login',[AuthController::class,'login']);
+Route::middleware('auth:sanctum')->group(function () {
 
+    Route::post('/logout',[AuthController::class,'logout']);
+
+});
