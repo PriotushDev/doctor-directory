@@ -22,7 +22,7 @@ Route::apiResource('districts', DistrictController::class);
 Route::apiResource('hospitals', HospitalController::class);
 Route::apiResource('doctors', DoctorController::class);
 Route::apiResource('specialties', SpecialtyController::class);
-Route::apiResource('appointments', AppointmentController::class);
 Route::apiResource('doctor-chambers', DoctorChamberController::class);
+Route::apiResource('appointments', AppointmentController::class);
 
 
