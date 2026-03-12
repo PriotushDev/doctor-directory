@@ -25,7 +25,7 @@ class AppointmentController extends Controller
     {
         $appointment = Appointment::create([
             'doctor_id' => $request->doctor_id,
-            'user_id' => $request->user_id,
+            'user_id' => auth()->id(),
             'appointment_date' => $request->appointment_date,
             'appointment_time' => $request->appointment_time,
             'status' => 'pending',
