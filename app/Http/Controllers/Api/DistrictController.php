@@ -12,7 +12,9 @@ class DistrictController extends Controller
      */
     public function index()
     {
-        //
+        $districts = District::with('division')->latest()->get();
+
+        return response()->json($districts);
     }
 
     /**
@@ -20,7 +22,15 @@ class DistrictController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $district = District::create([
+            'name' => $request->name,
+            'division_id' => $request->division_id
+        ]);
+
+        return response()->json([
+            'message' => 'District created successfully',
+            'data' => $district
+        ]);
     }
 
     /**
@@ -28,22 +38,37 @@ class DistrictController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $district = District::with('division')->findOrFail($id);
+
+        return response()->json($district);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $district = District::findOrFail($id);
+
+        $district->update([
+            'name' => $request->name,
+            'division_id' => $request->division_id
+        ]);
+
+        return response()->json([
+            'message' => 'District updated successfully'
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        District::destroy($id);
+
+        return response()->json([
+            'message' => 'District deleted successfully'
+        ]);
     }
 }
