@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\SpecialtyController;
+use App\Http\Controllers\Api\DoctorChamberController;
 
 
 Route::get('/test', function () {
@@ -22,5 +23,6 @@ Route::apiResource('hospitals', HospitalController::class);
 Route::apiResource('doctors', DoctorController::class);
 Route::apiResource('specialties', SpecialtyController::class);
 Route::apiResource('appointments', AppointmentController::class);
+Route::apiResource('doctor-chambers', DoctorChamberController::class);
 
 
