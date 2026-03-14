@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Appointment;
+use App\Services\AppointmentService;
 
 class AppointmentController extends Controller
 {
-    public function __construct()
+    protected $appointmentService;
+
+    public function __construct(AppointmentService $appointmentService)
     {
+        $this->appointmentService = $appointmentService;
+
         $this->middleware('permission:appointment.view')->only(['index','show']);
         $this->middleware('permission:appointment.create')->only('store');
         $this->middleware('permission:appointment.update')->only('update');
@@ -21,9 +26,13 @@ class AppointmentController extends Controller
     */
     public function index()
     {
-        $appointments = Appointment::with(['doctor','user'])->latest()->get();
+        $appointments = $this->appointmentService->listAppointments();
 
-        return response()->json($appointments);
+        return response()->json([
+            'status' => true,
+            'message' => 'Appointment Create successfully',
+            'data' => $appointments
+        ]);
     }
 
     /**
@@ -31,29 +40,26 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        $appointment = Appointment::create([
-            'doctor_id' => $request->doctor_id,
-            'user_id' => auth()->id(),
-            'appointment_date' => $request->appointment_date,
-            'appointment_time' => $request->appointment_time,
-            'status' => 'pending',
-            'notes' => $request->notes
-        ]);
+        $appointments = $this->appointmentService->createAppointment($request);
 
         return response()->json([
-            'message' => 'Appointment booked successfully',
-            'data' => $appointment
+            'status' => true,
+            'message' => 'Appointment Create successfully',
+            'data' => $appointments
         ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $appointment = Appointment::with(['doctor','user'])->findOrFail($id);
+        $appointment = $this->appointmentService->getAppointmentById($id);
 
-        return response()->json($appointment);
+        return response()->json([
+            'status' => true,
+            'data' => $appointment
+        ]);
     }
 
     /**
@@ -61,23 +67,25 @@ class AppointmentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $appointment = Appointment::findOrFail($id);
-
-        $appointment->update($request->all());
+        $appointment = $this->appointmentService->updateAppointment($id, $request);
 
         return response()->json([
-            'message' => 'Appointment updated successfully'
+            'status' => true,
+            'message' => 'Appointment updated successfully',
+            'data' => $appointment
         ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
+    
     public function destroy($id)
     {
-        Appointment::destroy($id);
+        $this->appointmentService->deleteAppointment($id);
 
         return response()->json([
+            'status' => true,
             'message' => 'Appointment deleted successfully'
         ]);
     }
