@@ -8,9 +8,17 @@ use App\Models\Appointment;
 
 class AppointmentController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:appointment.view')->only(['index','show']);
+        $this->middleware('permission:appointment.create')->only('store');
+        $this->middleware('permission:appointment.update')->only('update');
+        $this->middleware('permission:appointment.delete')->only('destroy');
+    }
+
     /**
-     * Display a listing of the resource.
-     */
+    * Display a listing of the resource.
+    */
     public function index()
     {
         $appointments = Appointment::with(['doctor','user'])->latest()->get();

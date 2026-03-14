@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     
+    
     public function register(Request $request)
     {
         $user = User::create([
@@ -19,6 +20,8 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
+        
+        $user->assignRole('user');
         
         return response()->json([
             'message' => 'User registered successfully',
