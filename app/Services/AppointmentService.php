@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\AppointmentRepository;
+use App\Events\AppointmentCreated; 
 
 class AppointmentService
 {
@@ -19,18 +20,20 @@ class AppointmentService
     }
     
     public function createAppointment($request)
-    {
-        $data = [
-            'doctor_id' => $request->doctor_id,
-            'user_id' => auth()->id(),
-            'appointment_date' => $request->appointment_date,
-            'appointment_time' => $request->appointment_time,
-            'notes' => $request->notes,
-            'status' => 'pending'
-        ];
+{
+    $appointment = $this->appointmentRepository->create([
+        'doctor_id' => $request->doctor_id,
+        'user_id' => auth()->id(),
+        'appointment_date' => $request->appointment_date,
+        'appointment_time' => $request->appointment_time,
+        'notes' => $request->notes,
+        'status' => 'pending'
+    ]);
 
-        return $this->appointmentRepository->create($data);
-    }
+    event(new AppointmentCreated($appointment));
+
+    return $appointment;
+}
 
 
     public function getAppointmentById($id)
@@ -54,4 +57,6 @@ class AppointmentService
     {
         return $this->appointmentRepository->delete($id);
     }
+
+    
 }
