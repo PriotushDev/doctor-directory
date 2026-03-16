@@ -3,10 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\AppointmentCreated;
+use App\Mail\AppointmentBooked;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendAppointmentEmail implements ShouldQueue
+class SendAppointmentEmail
 {
     public function handle(AppointmentCreated $event)
     {
@@ -14,12 +14,6 @@ class SendAppointmentEmail implements ShouldQueue
 
         $user = $appointment->user;
 
-        Mail::raw(
-            "Your appointment is booked on ".$appointment->appointment_date,
-            function ($message) use ($user) {
-                $message->to($user->email)
-                        ->subject('Appointment Confirmation');
-            }
-        );
+        Mail::to($user->email)->send(new AppointmentBooked($appointment));
     }
 }
