@@ -28,13 +28,21 @@ Route::apiResource('specialties', SpecialtyController::class);
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 
+// PUBLIC
+Route::get('/doctors', [DoctorController::class, 'index']);
+Route::get('/doctors/{id}', [DoctorController::class, 'show']);
+
+
 
 Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('/logout',[AuthController::class,'logout']);
     Route::apiResource('doctor-chambers', DoctorChamberController::class);
     Route::apiResource('appointments', AppointmentController::class);
-    Route::apiResource('doctors', DoctorController::class);
+    // Route::apiResource('doctors', DoctorController::class);
+    Route::post('/doctors', [DoctorController::class, 'store']);
+    Route::put('/doctors/{id}', [DoctorController::class, 'update']);
+    Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
 
     Route::apiResource('users', UserController::class);
 
