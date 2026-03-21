@@ -11,11 +11,23 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $doctors = Doctor::with(['hospital','specialty'])->latest()->get();
+        $query = Doctor::with(['specialty', 'hospital']);
 
-        return response()->json($doctors);
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('specialty_id')) {
+            $query->where('specialty_id', (int)$request->specialty_id);
+        }
+
+        if ($request->filled('hospital_id')) {
+            $query->where('hospital_id', (int)$request->hospital_id);
+        }
+
+        return response()->json($query->get());
     }
 
     /**
