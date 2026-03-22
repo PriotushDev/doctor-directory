@@ -27,7 +27,9 @@ class DoctorController extends Controller
             $query->where('hospital_id', (int)$request->hospital_id);
         }
 
-        return response()->json($query->get());
+        return response()->json(
+            $query->paginate(2) // 👈 important
+        );
     }
 
     /**
