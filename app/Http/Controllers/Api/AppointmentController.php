@@ -26,13 +26,18 @@ class AppointmentController extends Controller
     */
     public function index()
     {
-        $appointments = $this->appointmentService->listAppointments();
+        $user = auth()->user();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Appointment Create successfully',
-            'data' => $appointments
-        ]);
+        if ($user->hasRole('admin')) {
+            $appointments = Appointment::with(['doctor','user'])->latest()->get();
+        } else {
+            $appointments = Appointment::with(['doctor'])
+                ->where('user_id', $user->id)
+                ->latest()
+                ->get();
+        }
+
+        return response()->json($appointments);
     }
 
     /**
@@ -40,12 +45,16 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        $appointments = $this->appointmentService->createAppointment($request);
+        $appointment = Appointment::create([
+            'doctor_id' => $request->doctor_id,
+            'date' => $request->date,
+            'time' => $request->time,
+            'user_id' => auth()->id(), // 🔥 must
+        ]);
 
         return response()->json([
-            'status' => true,
-            'message' => 'Appointment Create successfully',
-            'data' => $appointments
+            'message' => 'Appointment created',
+            'data' => $appointment
         ]);
     }
 
@@ -54,12 +63,12 @@ class AppointmentController extends Controller
      */
     public function show($id)
     {
-        $appointment = $this->appointmentService->getAppointmentById($id);
+        $appointment = Appointment::findOrFail($id);
 
-        return response()->json([
-            'status' => true,
-            'data' => $appointment
-        ]);
+        // 🔥 Policy check
+        $this->authorize('view', $appointment);
+
+        return response()->json($appointment);
     }
 
     /**
@@ -82,11 +91,15 @@ class AppointmentController extends Controller
     
     public function destroy($id)
     {
-        $this->appointmentService->deleteAppointment($id);
+        $appointment = Appointment::findOrFail($id);
+
+        // 🔥 Policy check
+        $this->authorize('delete', $appointment);
+
+        $appointment->delete();
 
         return response()->json([
-            'status' => true,
             'message' => 'Appointment deleted successfully'
         ]);
-    }
+    }   
 }

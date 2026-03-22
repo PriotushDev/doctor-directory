@@ -14,10 +14,10 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = Role::create(['name' => 'admin']);
-        $manager = Role::create(['name' => 'manager']);
-        $doctor = Role::create(['name' => 'doctor']);
-        $user = Role::create(['name' => 'user']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $manager = Role::firstOrCreate(['name' => 'manager']);
+        $doctor = Role::firstOrCreate(['name' => 'doctor']);
+        $user = Role::firstOrCreate(['name' => 'user']);
 
         $admin->givePermissionTo(Permission::all());
 
@@ -28,7 +28,8 @@ class RoleSeeder extends Seeder
 
         $user->givePermissionTo([
             'doctor.view',
-            'appointment.create'
+            'appointment.create',
+            'appointment.view' // ✅ add this
         ]);
     }
 }
