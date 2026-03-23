@@ -6,6 +6,8 @@ use App\Repositories\AppointmentRepository;
 use App\Models\Appointment;
 use App\Events\AppointmentCreated;
 use App\Exceptions\BookingException;
+use App\Models\DoctorChamber;
+use Carbon\Carbon;
 
 class AppointmentService
 {
@@ -23,22 +25,55 @@ class AppointmentService
 
     public function createAppointment(array $data)
     {
-        // 🚨 Prevent double booking
-        $exists = Appointment::where('doctor_id', $data['doctor_id'])
+        $userId = auth()->id();
+
+        // 🔥 Get day from date
+        $day = Carbon::parse($data['appointment_date'])->format('l');
+
+        // 🔥 Check doctor chamber (availability)
+        $chamber = DoctorChamber::where('doctor_id', $data['doctor_id'])
+            ->where('day', $day)
+            ->first();
+
+        if (!$chamber) {
+            throw new BookingException('Doctor is not available on this day');
+        }
+
+        // 🔥 Check time within chamber
+        if (
+            $data['appointment_time'] < $chamber->start_time ||
+            $data['appointment_time'] > $chamber->end_time
+        ) {
+            throw new BookingException('Selected time is outside doctor schedule');
+        }
+
+        // 🔥 Rule 1: same time slot
+        $timeExists = Appointment::where('doctor_id', $data['doctor_id'])
             ->where('appointment_date', $data['appointment_date'])
             ->where('appointment_time', $data['appointment_time'])
             ->exists();
 
-        if ($exists) {
-            throw new \Exception('This time slot is already booked');
+        if ($timeExists) {
+            throw new BookingException('This time slot is already booked');
         }
 
-        $data['user_id'] = auth()->id();
+        // 🔥 Rule 2: same user same doctor same day
+        $userExists = Appointment::where('user_id', $userId)
+            ->where('doctor_id', $data['doctor_id'])
+            ->where('appointment_date', $data['appointment_date'])
+            ->exists();
+
+        if ($userExists) {
+            throw new BookingException('You already booked this doctor for this date');
+        }
+
+        // ✅ Save appointment
+        $data['user_id'] = $userId;
         $data['status'] = 'pending';
 
         $appointment = $this->appointmentRepository->create($data);
 
-        event(new AppointmentCreated($appointment));
+        event(new \App\Events\AppointmentCreated($appointment));
 
         return $appointment;
     }
