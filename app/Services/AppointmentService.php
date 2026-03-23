@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\AppointmentRepository;
 use App\Models\Appointment;
 use App\Events\AppointmentCreated;
+use App\Exceptions\BookingException;
 
 class AppointmentService
 {
@@ -65,7 +66,7 @@ class AppointmentService
                 ->exists();
 
             if ($exists) {
-                throw new \Exception('This time slot is already booked');
+                throw new BookingException('This time slot is already booked');
             }
         }
 
