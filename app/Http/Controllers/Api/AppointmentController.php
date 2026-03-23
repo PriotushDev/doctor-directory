@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Appointment;
 use App\Services\AppointmentService;
+use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Resources\AppointmentResource;
 
 class AppointmentController extends Controller
 {
@@ -21,85 +21,50 @@ class AppointmentController extends Controller
         $this->middleware('permission:appointment.delete')->only('destroy');
     }
 
-    /**
-    * Display a listing of the resource.
-    */
     public function index()
     {
-        $user = auth()->user();
+        $appointments = $this->appointmentService->listAppointments();
 
-        if ($user->hasRole('admin')) {
-            $appointments = Appointment::with(['doctor','user'])->latest()->get();
-        } else {
-            $appointments = Appointment::with(['doctor'])
-                ->where('user_id', $user->id)
-                ->latest()
-                ->get();
-        }
-
-        return response()->json($appointments);
+        return AppointmentResource::collection($appointments);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreAppointmentRequest $request)
     {
-        $appointment = Appointment::create([
-            'doctor_id' => $request->doctor_id,
-            'date' => $request->date,
-            'time' => $request->time,
-            'user_id' => auth()->id(), // 🔥 must
-        ]);
+        $appointment = $this->appointmentService->createAppointment($request->validated());
 
-        return response()->json([
-            'message' => 'Appointment created',
-            'data' => $appointment
-        ]);
+        return new AppointmentResource($appointment);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $appointment = Appointment::findOrFail($id);
+        $appointment = $this->appointmentService->getAppointmentById($id);
 
-        // 🔥 Policy check
         $this->authorize('view', $appointment);
 
-        return response()->json($appointment);
+        return new AppointmentResource($appointment);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(UpdateAppointmentRequest $request, $id)
     {
-        $appointment = $this->appointmentService->updateAppointment($id, $request);
+        $appointment = $this->appointmentService->getAppointmentById($id);
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Appointment updated successfully',
-            'data' => $appointment
-        ]);
+        $this->authorize('update', $appointment);
+
+        $updated = $this->appointmentService->updateAppointment($id, $request->validated());
+
+        return new AppointmentResource($updated);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    
     public function destroy($id)
     {
-        $appointment = Appointment::findOrFail($id);
+        $appointment = $this->appointmentService->getAppointmentById($id);
 
-        // 🔥 Policy check
         $this->authorize('delete', $appointment);
 
-        $appointment->delete();
+        $this->appointmentService->deleteAppointment($id);
 
         return response()->json([
             'message' => 'Appointment deleted successfully'
         ]);
-    }   
+    }
 }

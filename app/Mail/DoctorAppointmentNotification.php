@@ -3,8 +3,9 @@
 namespace App\Mail;
 
 use Illuminate\Mail\Mailable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DoctorAppointmentNotification extends Mailable
+class DoctorAppointmentNotification extends Mailable implements ShouldQueue
 {
     public $appointment;
 

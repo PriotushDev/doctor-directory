@@ -1,24 +1,33 @@
 <?php
 
-namespace App\Repositories; 
+namespace App\Repositories;
 
-use App\Models\Appointment; 
+use App\Models\Appointment;
 
 class AppointmentRepository
 {
+    public function getAll()
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('admin')) {
+            return Appointment::with(['doctor','user'])->latest()->paginate(10);
+        }
+
+        return Appointment::with(['doctor'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate(10);
+    }
+
     public function create(array $data)
     {
         return Appointment::create($data);
     }
 
-    public function getAll()
-    {
-        return Appointment::with(['doctor', 'user'])->latest()->get();
-    }
-
     public function findById($id)
     {
-        return Appointment::findOrFail($id);
+        return Appointment::with(['doctor','user'])->findOrFail($id);
     }
 
     public function update($id, array $data)
@@ -33,7 +42,6 @@ class AppointmentRepository
     public function delete($id)
     {
         $appointment = $this->findById($id);
-
         return $appointment->delete();
     }
 }

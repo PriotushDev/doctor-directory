@@ -12,6 +12,7 @@ class AuthServiceProvider extends ServiceProvider
         Appointment::class => AppointmentPolicy::class,
     ];
 
+
     public function boot(): void
     {
         $this->registerPolicies();

@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use App\Repositories\AppointmentRepository;
-use App\Events\AppointmentCreated; 
+use App\Models\Appointment;
+use App\Events\AppointmentCreated;
 
 class AppointmentService
 {
@@ -13,50 +14,68 @@ class AppointmentService
     {
         $this->appointmentRepository = $appointmentRepository;
     }
-    
+
     public function listAppointments()
     {
         return $this->appointmentRepository->getAll();
     }
-    
-    public function createAppointment($request)
-{
-    $appointment = $this->appointmentRepository->create([
-        'doctor_id' => $request->doctor_id,
-        'user_id' => auth()->id(),
-        'appointment_date' => $request->appointment_date,
-        'appointment_time' => $request->appointment_time,
-        'notes' => $request->notes,
-        'status' => 'pending'
-    ]);
 
-    event(new AppointmentCreated($appointment));
+    public function createAppointment(array $data)
+    {
+        // 🚨 Prevent double booking
+        $exists = Appointment::where('doctor_id', $data['doctor_id'])
+            ->where('appointment_date', $data['appointment_date'])
+            ->where('appointment_time', $data['appointment_time'])
+            ->exists();
 
-    return $appointment;
-}
+        if ($exists) {
+            throw new \Exception('This time slot is already booked');
+        }
 
+        $data['user_id'] = auth()->id();
+        $data['status'] = 'pending';
+
+        $appointment = $this->appointmentRepository->create($data);
+
+        event(new AppointmentCreated($appointment));
+
+        return $appointment;
+    }
 
     public function getAppointmentById($id)
     {
         return $this->appointmentRepository->findById($id);
     }
 
-    public function updateAppointment($id, $request)
+    public function updateAppointment($id, array $data)
     {
-        $data = [
-            'doctor_id' => $request->doctor_id,
-            'appointment_date' => $request->appointment_date,
-            'appointment_time' => $request->appointment_time,
-            'notes' => $request->notes
-        ];
+        $appointment = $this->appointmentRepository->findById($id);
+
+        // 🔥 Prevent double booking when updating
+        if (isset($data['doctor_id']) || isset($data['appointment_date']) || isset($data['appointment_time'])) {
+
+            $doctorId = $data['doctor_id'] ?? $appointment->doctor_id;
+            $date = $data['appointment_date'] ?? $appointment->appointment_date;
+            $time = $data['appointment_time'] ?? $appointment->appointment_time;
+
+            $exists = \App\Models\Appointment::where('doctor_id', $doctorId)
+                ->where('appointment_date', $date)
+                ->where('appointment_time', $time)
+                ->where('id', '!=', $id)
+                ->exists();
+
+            if ($exists) {
+                throw new \Exception('This time slot is already booked');
+            }
+        }
 
         return $this->appointmentRepository->update($id, $data);
     }
+
+
 
     public function deleteAppointment($id)
     {
         return $this->appointmentRepository->delete($id);
     }
-
-    
 }
