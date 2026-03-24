@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\DoctorRepository;
+use Illuminate\Support\Facades\Cache;
 
 class DoctorService
 {
@@ -20,6 +21,7 @@ class DoctorService
 
     public function createDoctor(array $data)
     {
+        Cache::flush(); // clear cache
         return $this->doctorRepository->create($data);
     }
 
@@ -30,11 +32,13 @@ class DoctorService
 
     public function updateDoctor($id, array $data)
     {
+        Cache::flush(); // clear cache
         return $this->doctorRepository->update($id, $data);
     }
 
     public function deleteDoctor($id)
     {
+        Cache::flush(); // clear cache
         return $this->doctorRepository->delete($id);
     }
 }
