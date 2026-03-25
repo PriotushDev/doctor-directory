@@ -3,6 +3,12 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+
+
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -19,8 +25,17 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
+
+    // ✅ Custom Rate Limit Error Message
+        $exceptions->render(function (ThrottleRequestsException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Too many requests. Please slow down.'
+            ], 429);
+        });
 
     // ✅ Custom Booking Exception FIRST
         $exceptions->render(function (\App\Exceptions\BookingException $e) {

@@ -2,19 +2,34 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use App\Models\Appointment;
-use App\Policies\AppointmentPolicy;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    protected $policies = [
-        Appointment::class => AppointmentPolicy::class,
-    ];
-
+    public function register(): void
+    {
+        //
+    }
 
     public function boot(): void
     {
-        $this->registerPolicies();
+        // 🔥 Login limit
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(3)->by($request->ip());
+        });
+
+        // 🔥 Appointment limit
+        RateLimiter::for('appointments', function (Request $request) {
+            return Limit::perMinute(20)
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        // 🔥 Doctor limit
+        RateLimiter::for('doctors', function (Request $request) {
+            return Limit::perMinute(100)->by($request->ip());
+        });
     }
 }

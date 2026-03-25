@@ -14,11 +14,6 @@ class AppointmentController extends Controller
     public function __construct(AppointmentService $appointmentService)
     {
         $this->appointmentService = $appointmentService;
-
-        $this->middleware('permission:appointment.view')->only(['index','show']);
-        $this->middleware('permission:appointment.create')->only('store');
-        $this->middleware('permission:appointment.update')->only('update');
-        $this->middleware('permission:appointment.delete')->only('destroy');
     }
 
     public function index()
