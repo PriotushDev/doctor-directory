@@ -7,37 +7,42 @@ use Illuminate\Support\Facades\Cache;
 
 class DoctorRepository
 {
-
-use Illuminate\Support\Facades\Cache;
-
     public function getAll($request)
     {
-        $cacheKey = 'doctors_' . md5(json_encode($request->all()));
+        $cacheKey = 'doctors:'
+        . 'search=' . $request->search
+        . '|specialty=' . $request->specialty_id
+        . '|hospital=' . $request->hospital_id
+        . '|page=' . request()->get('page', 1);
 
-        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($request) {
+        return Cache::tags(['doctors'])->remember(
+            $cacheKey,
+            now()->addMinutes(5),
+            function () use ($request) {
 
-            $query = Doctor::with(['specialty','hospital']);
+                $query = Doctor::with(['specialty','hospital']);
 
-            if ($request->filled('search')) {
-                $search = $request->search;
+                if ($request->filled('search')) {
+                    $search = $request->search;
 
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('degree', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-                });
+                    $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('degree', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                    });
+                }
+
+                if ($request->filled('specialty_id')) {
+                    $query->where('specialty_id', $request->specialty_id);
+                }
+
+                if ($request->filled('hospital_id')) {
+                    $query->where('hospital_id', $request->hospital_id);
+                }
+
+                return $query->paginate(10);
             }
-
-            if ($request->filled('specialty_id')) {
-                $query->where('specialty_id', $request->specialty_id);
-            }
-
-            if ($request->filled('hospital_id')) {
-                $query->where('hospital_id', $request->hospital_id);
-            }
-
-            return $query->paginate(10);
-        });
+        );
     }
 
     public function create(array $data)
@@ -47,7 +52,9 @@ use Illuminate\Support\Facades\Cache;
 
     public function findById($id)
     {
-        return Doctor::with(['hospital','specialty','chambers'])->findOrFail($id);
+        return Cache::remember("doctor:{$id}", now()->addMinutes(10), function () use ($id) {
+            return Doctor::with(['hospital','specialty','chambers'])->findOrFail($id);
+        });
     }
 
     public function update($id, array $data)
