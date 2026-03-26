@@ -3,76 +3,64 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Hospital;
+use App\Http\Requests\StoreHospitalRequest;
+use App\Http\Requests\UpdateHospitalRequest;
 
 class HospitalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $hospitals = Hospital::with('district')->latest()->get();
 
-        return response()->json($hospitals);
+        return response()->json([
+            'success' => true,
+            'data' => $hospitals
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreHospitalRequest $request)
     {
-        $hospital = Hospital::create([
-            'name' => $request->name,
-            'district_id' => $request->district_id,
-            'address' => $request->address,
-            'phone' => $request->phone
-        ]);
+        $hospital = Hospital::create($request->validated());
 
         return response()->json([
+            'success' => true,
             'message' => 'Hospital created successfully',
             'data' => $hospital
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $hospital = Hospital::with('district')->findOrFail($id);
 
-        return response()->json($hospital);
+        return response()->json([
+            'success' => true,
+            'data' => $hospital
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(UpdateHospitalRequest $request, $id)
     {
         $hospital = Hospital::findOrFail($id);
 
-        $hospital->update([
-            'name' => $request->name,
-            'district_id' => $request->district_id,
-            'address' => $request->address,
-            'phone' => $request->phone
-        ]);
+        $hospital->update($request->validated());
 
         return response()->json([
-            'message' => 'Hospital updated successfully'
+            'success' => true,
+            'message' => 'Hospital updated successfully',
+            'data' => $hospital
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        Hospital::destroy($id);
+        $hospital = Hospital::findOrFail($id);
+
+        $hospital->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Hospital deleted successfully'
         ]);
     }

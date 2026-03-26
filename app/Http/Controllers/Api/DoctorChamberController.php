@@ -3,75 +3,68 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\DoctorChamber;
+use App\Http\Requests\StoreDoctorChamberRequest;
+use App\Http\Requests\UpdateDoctorChamberRequest;
 
 class DoctorChamberController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $chambers = DoctorChamber::with(['doctor','hospital'])->latest()->get();
-
-        return response()->json($chambers);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $chamber = DoctorChamber::create([
-            'doctor_id' => $request->doctor_id,
-            'hospital_id' => $request->hospital_id,
-            'day' => $request->day,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'fee' => $request->fee
-        ]);
+        $chambers = DoctorChamber::with(['doctor', 'hospital'])
+            ->latest()
+            ->get();
 
         return response()->json([
+            'success' => true,
+            'data' => $chambers
+        ]);
+    }
+
+    public function store(StoreDoctorChamberRequest $request)
+    {
+        $chamber = DoctorChamber::create($request->validated());
+
+        return response()->json([
+            'success' => true,
             'message' => 'Doctor chamber created successfully',
             'data' => $chamber
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $chamber = DoctorChamber::with(['doctor','hospital'])->findOrFail($id);
-
-        return response()->json($chamber);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $chamber = DoctorChamber::findOrFail($id);
-
-        $chamber->update($request->all());
+        $chamber = DoctorChamber::with(['doctor', 'hospital'])
+            ->findOrFail($id);
 
         return response()->json([
-            'message' => 'Chamber updated successfully'
+            'success' => true,
+            'data' => $chamber
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function update(UpdateDoctorChamberRequest $request, $id)
     {
-        DoctorChamber::destroy($id);
+        $chamber = DoctorChamber::findOrFail($id);
+
+        $chamber->update($request->validated());
 
         return response()->json([
-            'message' => 'Chamber deleted successfully'
+            'success' => true,
+            'message' => 'Doctor chamber updated successfully',
+            'data' => $chamber
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $chamber = DoctorChamber::findOrFail($id);
+
+        $chamber->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Doctor chamber deleted successfully'
         ]);
     }
 }

@@ -47,6 +47,7 @@ Route::get('/doctors/{id}', [DoctorController::class, 'show']);
 | PROTECTED ROUTES (AUTH REQUIRED)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // Logout
@@ -56,14 +57,17 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/doctors', [DoctorController::class, 'store']);
     Route::put('/doctors/{id}', [DoctorController::class, 'update']);
     Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
+    
+    Route::apiResource('divisions', DivisionController::class);
+    Route::apiResource('districts', DistrictController::class);
+    Route::apiResource('hospitals', HospitalController::class);
+    Route::apiResource('specialties', SpecialtyController::class);
+    Route::apiResource('doctor-chambers', DoctorChamberController::class);
 
     // Appointments (ONLY ONE PLACE)
     Route::middleware('throttle:appointments')->group(function () {
         Route::apiResource('appointments', AppointmentController::class);
     });
-
-    // Doctor Chambers
-    Route::apiResource('doctor-chambers', DoctorChamberController::class);
 
     // Users
     Route::apiResource('users', UserController::class);
@@ -74,7 +78,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
 | OPEN DATA (NO AUTH NEEDED)
 |--------------------------------------------------------------------------
 */
-Route::apiResource('divisions', DivisionController::class);
-Route::apiResource('districts', DistrictController::class);
-Route::apiResource('hospitals', HospitalController::class);
-Route::apiResource('specialties', SpecialtyController::class);

@@ -15,15 +15,40 @@ class PermissionSeeder extends Seeder
     {
         $permissions = [
 
+            'division.view',
+            'division.create',
+            'division.update',
+            'division.delete',
+            
+            'district.view',
+            'district.create',
+            'district.update',
+            'district.delete',
+            
+            'specialty.view',
+            'specialty.create',
+            'specialty.update',
+            'specialty.delete',
+
             'doctor.view',
             'doctor.create',
             'doctor.update',
             'doctor.delete',
 
+            'doctor_chamber.view',
+            'doctor_chamber.create',
+            'doctor_chamber.update',
+            'doctor_chamber.delete',
+            
             'hospital.view',
             'hospital.create',
             'hospital.update',
             'hospital.delete',
+
+            'appointment.view',
+            'appointment.create',
+            'appointment.update',
+            'appointment.delete',
 
             'appointment.view',
             'appointment.create',

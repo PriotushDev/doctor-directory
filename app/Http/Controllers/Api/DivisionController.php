@@ -3,67 +3,80 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\Division;
+use App\Http\Requests\StoreDivisionRequest;
+use App\Http\Requests\UpdateDivisionRequest;
 
 class DivisionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+    public function __construct()
+    {
+        // $this->middleware('auth:sanctum');
+
+        $this->middleware('permission:division.view')->only(['index','show']);
+        $this->middleware('permission:division.create')->only('store');
+        $this->middleware('permission:division.update')->only('update');
+        $this->middleware('permission:division.delete')->only('destroy');
+    }    
+
     public function index()
     {
-        return Division::latest()->get();
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $division = Division::create([
-            'name' => $request->name
-        ]);
+        $divisions = Division::latest()->get();
 
         return response()->json([
+            'success' => true,
+            'data' => $divisions
+        ]);
+    }
+
+    public function store(StoreDivisionRequest $request)
+    {
+        $division = Division::create($request->validated());
+
+        return response()->json([
+            'success' => true,
             'message' => 'Division created successfully',
             'data' => $division
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
-    {
-        return Division::findOrFail($id);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
     {
         $division = Division::findOrFail($id);
 
-        $division->update([
-            'name' => $request->name
-        ]);
-
         return response()->json([
-            'message' => 'Division updated successfully'
+            'success' => true,
+            'data' => $division
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function update(UpdateDivisionRequest $request, $id)
     {
-        Division::destroy($id);
+        // dd('Controller reached', $id, $request->all());    
+        // dd(auth()->user());
+        // dd(auth()->user()->getRoleNames(), auth()->user()->getAllPermissions());
+
+
+        $division = Division::findOrFail($id);
+
+        $division->update($request->validated());
 
         return response()->json([
+            'success' => true,
+            'message' => 'Division updated successfully',
+            'data' => $division
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $division = Division::findOrFail($id);
+
+        $division->delete();
+
+        return response()->json([
+            'success' => true,
             'message' => 'Division deleted successfully'
         ]);
     }

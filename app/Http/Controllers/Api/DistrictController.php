@@ -3,73 +3,64 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\District;
+use App\Http\Requests\StoreDistrictRequest;
+use App\Http\Requests\UpdateDistrictRequest;
 
 class DistrictController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $districts = District::with('division')->latest()->get();
 
-        return response()->json($districts);
+        return response()->json([
+            'success' => true,
+            'data' => $districts
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreDistrictRequest $request)
     {
-        $district = District::create([
-            'name' => $request->name,
-            'division_id' => $request->division_id
-        ]);
+        $district = District::create($request->validated());
 
         return response()->json([
+            'success' => true,
             'message' => 'District created successfully',
             'data' => $district
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($id)
     {
         $district = District::with('division')->findOrFail($id);
 
-        return response()->json($district);
+        return response()->json([
+            'success' => true,
+            'data' => $district
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    public function update(UpdateDistrictRequest $request, $id)
     {
         $district = District::findOrFail($id);
 
-        $district->update([
-            'name' => $request->name,
-            'division_id' => $request->division_id
-        ]);
+        $district->update($request->validated());
 
         return response()->json([
-            'message' => 'District updated successfully'
+            'success' => true,
+            'message' => 'District updated successfully',
+            'data' => $district
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-        District::destroy($id);
+        $district = District::findOrFail($id);
+
+        $district->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'District deleted successfully'
         ]);
     }
