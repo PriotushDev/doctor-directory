@@ -130,7 +130,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Users
     Route::apiResource('users', UserController::class);
+    Route::put('users/{id}/role', [UserController::class, 'updateRole']);
+
 });
+
+
 
 /*
 |--------------------------------------------------------------------------
