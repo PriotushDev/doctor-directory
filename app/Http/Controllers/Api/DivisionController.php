@@ -14,7 +14,7 @@ class DivisionController extends Controller
     {
         // $this->middleware('auth:sanctum');
 
-        $this->middleware('permission:division.view')->only(['index','show']);
+        // $this->middleware('permission:division.view')->only(['index','show']);
         $this->middleware('permission:division.create')->only('store');
         $this->middleware('permission:division.update')->only('update');
         $this->middleware('permission:division.delete')->only('destroy');

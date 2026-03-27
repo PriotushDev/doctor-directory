@@ -14,13 +14,13 @@ class StoreDoctorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'specialty_id' => 'required|exists:specialties,id',
             'hospital_id' => 'required|exists:hospitals,id',
-            'degree' => 'required|string',
-            'experience' => 'required|integer',
-            'phone' => 'required|string',
-            'email' => 'required|email',
+            'degree' => 'required|string|max:255',
+            'experience' => 'required|integer|min:0',
+            'phone' => 'required|string|unique:doctors,phone',
+            'email' => 'required|email|unique:doctors,email',
             'bio' => 'nullable|string'
         ];
     }

@@ -9,6 +9,17 @@ use App\Http\Requests\UpdateDoctorChamberRequest;
 
 class DoctorChamberController extends Controller
 {
+
+    public function __construct()
+    {
+        // $this->middleware('auth:sanctum');
+
+        // $this->middleware('permission:doctor_chamber.view')->only(['index','show']);
+        $this->middleware('permission:doctor_chamber.create')->only('store');
+        $this->middleware('permission:doctor_chamber.update')->only('update');
+        $this->middleware('permission:doctor_chamber.delete')->only('destroy');
+    } 
+
     public function index()
     {
         $chambers = DoctorChamber::with(['doctor', 'hospital'])

@@ -12,12 +12,22 @@ class DoctorResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'specialty' => $this->specialty?->name,
-            'hospital' => $this->hospital?->name,
+
+            'specialty' => [
+                'id' => $this->specialty?->id,
+                'name' => $this->specialty?->name,
+            ],
+
+            'hospital' => [
+                'id' => $this->hospital?->id,
+                'name' => $this->hospital?->name,
+            ],
+
             'degree' => $this->degree,
             'experience' => $this->experience,
             'phone' => $this->phone,
             'email' => $this->email,
+            'bio' => $this->bio,
         ];
     }
 }

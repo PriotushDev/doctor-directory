@@ -9,6 +9,17 @@ use App\Http\Requests\UpdateHospitalRequest;
 
 class HospitalController extends Controller
 {
+
+    public function __construct()
+    {
+        // $this->middleware('auth:sanctum');
+
+        // $this->middleware('permission:hospital.view')->only(['index','show']);
+        $this->middleware('permission:hospital.create')->only('store');
+        $this->middleware('permission:hospital.update')->only('update');
+        $this->middleware('permission:hospital.delete')->only('destroy');
+    }
+
     public function index()
     {
         $hospitals = Hospital::with('district')->latest()->get();

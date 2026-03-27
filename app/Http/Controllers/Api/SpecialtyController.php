@@ -8,6 +8,17 @@ use App\Models\Specialty;
 
 class SpecialtyController extends Controller
 {
+
+    public function __construct()
+    {
+        // $this->middleware('auth:sanctum');
+
+        // $this->middleware('permission:specialty.view')->only(['index','show']);
+        $this->middleware('permission:specialty.create')->only('store');
+        $this->middleware('permission:specialty.update')->only('update');
+        $this->middleware('permission:specialty.delete')->only('destroy');
+    }
+    
     /**
      * Display a listing of the resource.
      */

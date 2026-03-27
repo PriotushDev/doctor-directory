@@ -9,6 +9,17 @@ use App\Http\Requests\UpdateDistrictRequest;
 
 class DistrictController extends Controller
 {
+
+    public function __construct()
+    {
+        // $this->middleware('auth:sanctum');
+
+        // $this->middleware('permission:district.view')->only(['index','show']);
+        $this->middleware('permission:district.create')->only('store');
+        $this->middleware('permission:district.update')->only('update');
+        $this->middleware('permission:district.delete')->only('destroy');
+    } 
+
     public function index()
     {
         $districts = District::with('division')->latest()->get();
