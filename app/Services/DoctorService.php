@@ -21,7 +21,6 @@ class DoctorService
 
     public function createDoctor(array $data)
     {
-        Cache::tags(['doctors'])->flush();
         return $this->doctorRepository->create($data);
     }
 
@@ -32,13 +31,11 @@ class DoctorService
 
     public function updateDoctor($id, array $data)
     {
-        Cache::tags(['doctors'])->flush();
         return $this->doctorRepository->update($id, $data);
     }
 
     public function deleteDoctor($id)
     {
-        Cache::tags(['doctors'])->flush();
         return $this->doctorRepository->delete($id);
     }
 }
