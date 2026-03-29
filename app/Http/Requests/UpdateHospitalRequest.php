@@ -17,7 +17,7 @@ class UpdateHospitalRequest extends FormRequest
             'name' => 'sometimes|string|max:255',
             'district_id' => 'sometimes|exists:districts,id',
             'address' => 'sometimes|string|max:500',
-            'phone' => 'sometimes|string|max:20'
+            'phone' => 'sometimes|string|max:20|unique:hospitals,phone'
         ];
     }
 }

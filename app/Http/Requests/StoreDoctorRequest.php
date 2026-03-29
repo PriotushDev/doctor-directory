@@ -21,7 +21,8 @@ class StoreDoctorRequest extends FormRequest
             'experience' => 'required|integer|min:0',
             'phone' => 'required|string|unique:doctors,phone',
             'email' => 'required|email|unique:doctors,email',
-            'bio' => 'nullable|string'
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|string'
         ];
     }
 }

@@ -12,9 +12,13 @@ use App\Http\Resources\DoctorResource;
 class DoctorController extends Controller
 {
     protected $doctorService;
+    
 
     public function __construct(DoctorService $doctorService)
     {
+        $this->middleware('permission:doctor.create')->only('store');
+        $this->middleware('permission:doctor.update')->only('update');
+        $this->middleware('permission:doctor.delete')->only('destroy');    
         $this->doctorService = $doctorService;
     }
 

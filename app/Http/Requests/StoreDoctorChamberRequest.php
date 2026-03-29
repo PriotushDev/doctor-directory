@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
+use App\Enums\DayEnum;
 
 class StoreDoctorChamberRequest extends FormRequest
 {
@@ -16,7 +18,7 @@ class StoreDoctorChamberRequest extends FormRequest
         return [
             'doctor_id'   => 'required|exists:doctors,id',
             'hospital_id' => 'required|exists:hospitals,id',
-            'day'         => 'required|string|max:50',
+            'day'         => ['required', new Enum(DayEnum::class)],
             'start_time'  => 'required|date_format:H:i',
             'end_time'    => 'required|date_format:H:i|after:start_time',
             'fee'         => 'required|numeric|min:0'

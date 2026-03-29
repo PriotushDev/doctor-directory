@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Specialty;
+use App\Http\Requests\StoreSpecialtyRequest;
+use App\Http\Requests\UpdateSpecialtyRequest;
 
 class SpecialtyController extends Controller
 {
@@ -24,59 +26,58 @@ class SpecialtyController extends Controller
      */
     public function index()
     {
-        return Specialty::latest()->get();
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $specialty = Specialty::create([
-            'name' => $request->name,
-            'slug' => $request->slug
-        ]);
+        $specialties = Specialty::latest()->get();
 
         return response()->json([
+            'success' => true,
+            'data' => $specialties
+        ]);
+    }
+
+    public function store(StoreSpecialtyRequest $request)
+    {
+        $specialty = Specialty::create($request->validated());
+
+        return response()->json([
+            'success' => true,
             'message' => 'Specialty created successfully',
             'data' => $specialty
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
-    {
-        return Specialty::findOrFail($id);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
     {
         $specialty = Specialty::findOrFail($id);
 
-        $specialty->update([
-            'name' => $request->name,
-            'slug' => $request->slug
-        ]);
-
         return response()->json([
-            'message' => 'Specialty updated successfully'
+            'success' => true,
+            'data' => $specialty
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function update(UpdateSpecialtyRequest $request, $id)
     {
-        Specialty::destroy($id);
+        $specialty = Specialty::findOrFail($id);
+
+        $specialty->update($request->validated());
 
         return response()->json([
+            'success' => true,
+            'message' => 'Specialty updated successfully',
+            'data' => $specialty
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $specialty = Specialty::findOrFail($id);
+
+        $specialty->delete();
+
+        return response()->json([
+            'success' => true,
             'message' => 'Specialty deleted successfully'
         ]);
     }
 }
+

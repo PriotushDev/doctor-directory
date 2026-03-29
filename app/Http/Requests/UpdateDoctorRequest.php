@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateDoctorRequest extends FormRequest
 {
@@ -22,19 +21,10 @@ class UpdateDoctorRequest extends FormRequest
             'hospital_id' => 'sometimes|exists:hospitals,id',
             'degree' => 'sometimes|string|max:255',
             'experience' => 'sometimes|integer|min:0',
-
-            'phone' => [
-                'sometimes',
-                Rule::unique('doctors', 'phone')->ignore($id)
-            ],
-
-            'email' => [
-                'sometimes',
-                'email',
-                Rule::unique('doctors', 'email')->ignore($id)
-            ],
-
-            'bio' => 'nullable|string'
+            'phone' => 'required|string|unique:doctors,phone',
+            'email' => 'required|email|unique:doctors,email',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|string'
         ];
     }
 }

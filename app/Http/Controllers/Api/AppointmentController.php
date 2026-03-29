@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\AppointmentService;
 use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AppointmentController extends Controller
 {
+    use AuthorizesRequests;
+
     protected $appointmentService;
 
     public function __construct(AppointmentService $appointmentService)

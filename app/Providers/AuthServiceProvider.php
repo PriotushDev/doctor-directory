@@ -19,7 +19,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         // 🔥 Login limit
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(50)->by($request->ip());
+            return Limit::perMinute(5)->by($request->ip());
         });
 
         // 🔥 Appointment limit
