@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Http\Requests\StoreDistrictRequest;
 use App\Http\Requests\UpdateDistrictRequest;
+use Illuminate\Http\Request; 
 
 class DistrictController extends Controller
 {
@@ -20,13 +21,17 @@ class DistrictController extends Controller
         $this->middleware('permission:district.delete')->only('destroy');
     } 
 
-    public function index()
+    public function index(Request $request)
     {
-        $districts = District::with('division')->latest()->get();
+        $query = District::query();
+
+        if ($request->division_id) {
+            $query->where('division_id', $request->division_id);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $districts
+            'data' => $query->get()
         ]);
     }
 

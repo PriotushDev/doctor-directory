@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Hospital;
 use App\Http\Requests\StoreHospitalRequest;
 use App\Http\Requests\UpdateHospitalRequest;
+use Illuminate\Http\Request; 
 
 class HospitalController extends Controller
 {
@@ -20,13 +21,17 @@ class HospitalController extends Controller
         $this->middleware('permission:hospital.delete')->only('destroy');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $hospitals = Hospital::with('district')->latest()->get();
+        $query = Hospital::query();
+
+        if ($request->district_id) {
+            $query->where('district_id', $request->district_id);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => $hospitals
+            'data' => $query->get()
         ]);
     }
 

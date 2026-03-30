@@ -27,12 +27,30 @@ class DoctorRepository
             });
         }
 
-        if ($request->filled('specialty_id')) {
+        // 🏥 Filter by Specialty
+        if ($request->specialty_id) {
             $query->where('specialty_id', $request->specialty_id);
         }
 
-        if ($request->filled('hospital_id')) {
-            $query->where('hospital_id', $request->hospital_id);
+        // 🏥 Filter by Hospital
+        if ($request->hospital_id) {
+            $query->whereHas('chambers', function ($q) use ($request) {
+                $q->where('hospital_id', $request->hospital_id);
+            });
+        }
+
+        // 📍 Filter by District
+        if ($request->district_id) {
+            $query->whereHas('chambers.hospital', function ($q) use ($request) {
+                $q->where('district_id', $request->district_id);
+            });
+        }
+
+        // 🌍 Filter by Division
+        if ($request->division_id) {
+            $query->whereHas('chambers.hospital.district', function ($q) use ($request) {
+                $q->where('division_id', $request->division_id);
+            });
         }
 
         $perPage = $request->get('per_page', 10);
