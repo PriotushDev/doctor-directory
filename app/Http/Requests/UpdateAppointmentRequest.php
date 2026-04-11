@@ -18,7 +18,7 @@ class UpdateAppointmentRequest extends FormRequest
             'appointment_date' => 'sometimes|date',
             'appointment_time' => 'sometimes',
             'notes' => 'nullable|string',
-            'status' => 'sometimes|in:pending,approved,cancelled'
+            'status' => 'sometimes|in:pending,confirmed,completed,cancelled'
         ];
     }
 }

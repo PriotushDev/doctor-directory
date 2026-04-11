@@ -6,18 +6,15 @@ use App\Models\Appointment;
 
 class AppointmentRepository
 {
-    public function getAll()
+    public function getAll($filters = [])
     {
-        $user = auth()->user();
+        $query = Appointment::with(['doctor','user']);
 
-        if ($user->hasRole('admin')) {
-            return Appointment::with(['doctor','user'])->latest()->paginate(10);
+        if (isset($filters['status'])) {
+            $query->where('status', $filters['status']);
         }
 
-        return Appointment::with(['doctor'])
-            ->where('user_id', $user->id)
-            ->latest()
-            ->paginate(10);
+        return $query->latest()->paginate(10);
     }
 
     public function create(array $data)

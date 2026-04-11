@@ -15,9 +15,16 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'doctor_id' => 'required|exists:doctors,id',
+            'chamber_id' => 'nullable|exists:doctor_chambers,id',
             'appointment_date' => 'required|date',
             'appointment_time' => 'required',
-            'notes' => 'nullable|string'
+            'status' => 'sometimes|in:pending,confirmed,completed,cancelled',
+            'notes' => 'nullable|string',
+            'payment_status' => 'nullable|string',
+            'payment_method' => 'nullable|string',
+            'payment_number' => 'nullable|string',
+            'transaction_id' => 'nullable|string',
+            'amount' => 'nullable|numeric',
         ];
     }
 }

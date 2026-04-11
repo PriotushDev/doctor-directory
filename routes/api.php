@@ -11,7 +11,9 @@ use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\SpecialtyController;
 use App\Http\Controllers\Api\DoctorChamberController;
 use App\Http\Controllers\Api\UserController;
-
+use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\PrescriptionController;
+use App\Http\Controllers\Api\WalkInPatientController;
 /*
 |--------------------------------------------------------------------------
 | TEST ROUTE
@@ -33,6 +35,9 @@ Route::post('/login', [AuthController::class, 'login'])
 
 Route::post('/register', [AuthController::class, 'register'])
     ->middleware('throttle:login');
+
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +98,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    // Current user info (with roles)
+    Route::get('/me', [AuthController::class, 'me']);
+
+    // Admin dashboard stats
+    Route::get('/admin/stats', [AdminController::class, 'stats']);
+
     // Doctors (protected actions only)
     Route::post('/doctors', [DoctorController::class, 'store']);
     Route::put('/doctors/{id}', [DoctorController::class, 'update']);
@@ -131,6 +142,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Users
     Route::apiResource('users', UserController::class);
     Route::put('users/{id}/role', [UserController::class, 'updateRole']);
+
+    // Prescriptions
+    Route::apiResource('prescriptions', PrescriptionController::class);
+
+    // Doctor Walk-in Patients
+    Route::post('doctor/patients', [WalkInPatientController::class, 'store']);
+
+    // Medicines (Auto-complete)
+    Route::get('medicines', [\App\Http\Controllers\Api\MedicineController::class, 'index']);
 
 });
 

@@ -23,15 +23,31 @@ class HospitalController extends Controller
 
     public function index(Request $request)
     {
-        $query = Hospital::query();
+        $query = Hospital::with('district.division');
 
+        // 🔥 Division filter
+        if ($request->division_id) {
+            $query->whereHas('district', function ($q) use ($request) {
+                $q->where('division_id', $request->division_id);
+            });
+        }
+
+        // 🔥 District filter
         if ($request->district_id) {
             $query->where('district_id', $request->district_id);
         }
 
+        // 🔥 Search
+        if ($request->search) {
+            $query->where('name', 'LIKE', '%' . $request->search . '%');
+        }
+
+        // 🔥 Pagination (MAIN FIX)
+        $data = $query->latest()->paginate($request->per_page ?? 9);
+
         return response()->json([
             'success' => true,
-            'data' => $query->get()
+            'data' => $data
         ]);
     }
 
