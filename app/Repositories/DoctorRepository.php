@@ -54,11 +54,28 @@ class DoctorRepository
         }
 
         $perPage = $request->get('per_page', 10);
-        return $query->paginate($perPage);
+        return $query->latest()->paginate($perPage);
+    }
+
+    protected function handlePhotoUpload($data, $existingPhoto = null)
+    {
+        if (isset($data['photo']) && $data['photo'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old photo if it exists
+            if ($existingPhoto && \Illuminate\Support\Facades\Storage::disk('public')->exists($existingPhoto)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($existingPhoto);
+            }
+            // Store new photo
+            $data['photo'] = $data['photo']->store('doctors', 'public');
+        } else {
+            // If it's a string (e.g. full URL from frontend) or empty, ignore it to prevent corrupting the relative DB path
+            unset($data['photo']);
+        }
+        return $data;
     }
 
     public function create(array $data)
     {
+        $data = $this->handlePhotoUpload($data);
         return Doctor::create($data);
     }
 
@@ -70,6 +87,7 @@ class DoctorRepository
     public function update($id, array $data)
     {
         $doctor = $this->findById($id);
+        $data = $this->handlePhotoUpload($data, $doctor->photo);
         $doctor->update($data);
         return $doctor;
     }

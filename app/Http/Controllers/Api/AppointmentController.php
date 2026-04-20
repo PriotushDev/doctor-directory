@@ -77,8 +77,13 @@ class AppointmentController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhere('transaction_id', 'like', '%' . $search . '%')
+                ->orWhere('registration_id', 'like', '%' . $search . '%');
             });
         }
 

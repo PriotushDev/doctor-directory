@@ -15,46 +15,26 @@ class PermissionSeeder extends Seeder
     {
         $permissions = [
 
-            'division.view',
-            'division.create',
-            'division.update',
-            'division.delete',
+            'medicine.view',
+            'medicine.create',
+            'medicine.update',
+            'medicine.delete',
             
-            'district.view',
-            'district.create',
-            'district.update',
-            'district.delete',
-            
-            'specialty.view',
-            'specialty.create',
-            'specialty.update',
-            'specialty.delete',
+            'user.view',
+            'user.update',
+            'user.delete',
+            'user.permission',
 
-            'doctor.view',
-            'doctor.create',
-            'doctor.update',
-            'doctor.delete',
+            'prescription.view',
+            'prescription.create',
+            'prescription.update',
+            'prescription.delete',
 
-            'doctor_chamber.view',
-            'doctor_chamber.create',
-            'doctor_chamber.update',
-            'doctor_chamber.delete',
-            
-            'hospital.view',
-            'hospital.create',
-            'hospital.update',
-            'hospital.delete',
+            'payment.view',
+            'payment.update',
+            'payment.delete',
 
-            'appointment.view',
-            'appointment.create',
-            'appointment.update',
-            'appointment.delete',
-
-            'appointment.view',
-            'appointment.create',
-            'appointment.update',
-            'appointment.delete',
-
+            'content.update'
         ];
 
         foreach ($permissions as $permission) {

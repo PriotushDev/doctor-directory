@@ -35,7 +35,19 @@ class UserService
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        return $user->load('roles');
+        return $user->load('roles', 'permissions');
+    }
+
+    public function syncPermissions($id, array $permissions)
+    {
+        $user = $this->repo->find($id);
+        
+        // Sync direct permissions
+        $user->syncPermissions($permissions);
+        
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        return $user->load('roles', 'permissions');
     }
 
     public function deleteUser($id)

@@ -19,10 +19,10 @@ class RoleSeeder extends Seeder
         $doctor = Role::firstOrCreate(['name' => 'doctor']);
         $user = Role::firstOrCreate(['name' => 'user']);
 
-        $admin->givePermissionTo(Permission::all());
+        $admin->syncPermissions(Permission::all());
 
         // Manager: hospital authority — create + edit (no delete)
-        $manager->givePermissionTo([
+        $manager->syncPermissions([
             'hospital.view',
             'hospital.create',
             'hospital.update',
@@ -35,17 +35,20 @@ class RoleSeeder extends Seeder
             'appointment.view',
         ]);
 
-        // Doctor: own profile + chambers + appointment status changes
-        $doctor->givePermissionTo([
+        // Doctor: own profile + chambers + appointment status changes + medicine management
+        $doctor->syncPermissions([
             'doctor.view',
             'doctor_chamber.view',
             'doctor_chamber.create',
             'doctor_chamber.update',
             'appointment.view',
             'appointment.update',
+            'medicine.view',
+            'medicine.create',
+            'medicine.update',
         ]);
 
-        $user->givePermissionTo([
+        $user->syncPermissions([
             'doctor.view',
             'appointment.create',
             'appointment.view',

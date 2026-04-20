@@ -14,6 +14,10 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\PrescriptionController;
 use App\Http\Controllers\Api\WalkInPatientController;
+use App\Http\Controllers\Api\SubscriptionController;
+use App\Http\Controllers\Api\DoctorNotificationController;
+use App\Http\Controllers\Api\AdminSubscriptionController;
+use App\Http\Controllers\Api\MedicineController;
 /*
 |--------------------------------------------------------------------------
 | TEST ROUTE
@@ -89,6 +93,13 @@ Route::get('/doctor-chambers/{id}', [DoctorChamberController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
+| PUBLIC SUBSCRIPTION ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::get('/subscription/packages', [SubscriptionController::class, 'packages']);
+
+/*
+|--------------------------------------------------------------------------
 | PROTECTED ROUTES (AUTH REQUIRED)
 |--------------------------------------------------------------------------
 */
@@ -140,8 +151,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Users
+    Route::get('permissions', [UserController::class, 'getPermissions']);
     Route::apiResource('users', UserController::class);
     Route::put('users/{id}/role', [UserController::class, 'updateRole']);
+    Route::put('users/{id}/permissions', [UserController::class, 'syncPermissions']);
 
     // Prescriptions
     Route::apiResource('prescriptions', PrescriptionController::class);
@@ -149,8 +162,54 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Doctor Walk-in Patients
     Route::post('doctor/patients', [WalkInPatientController::class, 'store']);
 
-    // Medicines (Auto-complete)
-    Route::get('medicines', [\App\Http\Controllers\Api\MedicineController::class, 'index']);
+    // Medicines (Auto-complete & CRUD)
+    Route::apiResource('medicines', MedicineController::class);
+
+    // ===== SUBSCRIPTION SYSTEM =====
+    Route::prefix('subscription')->group(function () {
+        Route::post('/validate-promo', [SubscriptionController::class, 'validatePromo']);
+        Route::post('/purchase', [SubscriptionController::class, 'purchase']);
+        Route::get('/status', [SubscriptionController::class, 'status']);
+        Route::get('/history', [SubscriptionController::class, 'history']);
+    });
+
+    // ===== DOCTOR NOTIFICATIONS =====
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [DoctorNotificationController::class, 'index']);
+        Route::get('/popups', [DoctorNotificationController::class, 'popups']);
+        Route::get('/unread-count', [DoctorNotificationController::class, 'unreadCount']);
+        Route::put('/{id}/read', [DoctorNotificationController::class, 'markRead']);
+        Route::post('/mark-all-read', [DoctorNotificationController::class, 'markAllRead']);
+    });
+
+    // ===== ADMIN SUBSCRIPTION MANAGEMENT =====
+    Route::prefix('admin')->group(function () {
+        // Packages
+        Route::get('/packages', [AdminSubscriptionController::class, 'packageIndex']);
+        Route::post('/packages', [AdminSubscriptionController::class, 'packageStore']);
+        Route::put('/packages/{id}', [AdminSubscriptionController::class, 'packageUpdate']);
+        Route::delete('/packages/{id}', [AdminSubscriptionController::class, 'packageDestroy']);
+
+        // Promo Codes
+        Route::get('/promo-codes', [AdminSubscriptionController::class, 'promoIndex']);
+        Route::post('/promo-codes', [AdminSubscriptionController::class, 'promoStore']);
+        Route::put('/promo-codes/{id}', [AdminSubscriptionController::class, 'promoUpdate']);
+        Route::delete('/promo-codes/{id}', [AdminSubscriptionController::class, 'promoDestroy']);
+
+        // Trial Days
+        Route::get('/trial-days', [AdminSubscriptionController::class, 'trialIndex']);
+        Route::post('/trial-days', [AdminSubscriptionController::class, 'trialStore']);
+        Route::delete('/trial-days/{id}', [AdminSubscriptionController::class, 'trialDestroy']);
+
+        // Subscription Management
+        Route::get('/subscriptions', [AdminSubscriptionController::class, 'subscriptionIndex']);
+        Route::put('/subscriptions/{id}', [AdminSubscriptionController::class, 'subscriptionUpdate']);
+
+        // Messages / Notifications
+        Route::get('/sent-notifications', [AdminSubscriptionController::class, 'notificationIndex']);
+        Route::post('/send-notification', [AdminSubscriptionController::class, 'sendNotification']);
+        Route::delete('/notifications/{id}', [AdminSubscriptionController::class, 'notificationDestroy']);
+    });
 
 });
 

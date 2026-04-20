@@ -11,6 +11,7 @@ use App\Models\Specialty;
 use App\Models\Division;
 use App\Models\District;
 use App\Models\DoctorChamber;
+use App\Models\Prescription;
 
 class AdminController extends Controller
 {
@@ -37,6 +38,8 @@ class AdminController extends Controller
                     'confirmed_appointments' => Appointment::where('status', 'confirmed')->count(),
                     'completed_appointments' => Appointment::where('status', 'completed')->count(),
                     'cancelled_appointments' => Appointment::where('status', 'cancelled')->count(),
+                    'total_prescriptions' => Prescription::count(),
+                    'total_payments_collected' => Appointment::where('payment_status', 'Paid')->sum('amount'),
                 ]
             ]);
         }
@@ -70,6 +73,10 @@ class AdminController extends Controller
                     'completed_appointments' => Appointment::where('doctor_id', $doctorId)->where('status', 'completed')->count(),
                     'cancelled_appointments' => Appointment::where('doctor_id', $doctorId)->where('status', 'cancelled')->count(),
                     'total_chambers' => DoctorChamber::where('doctor_id', $doctorId)->count(),
+                    'total_prescriptions' => Prescription::whereHas('appointment', function($q) use ($doctorId) {
+                        $q->where('doctor_id', $doctorId);
+                    })->count(),
+                    'total_payments_collected' => Appointment::where('doctor_id', $doctorId)->where('payment_status', 'Paid')->sum('amount'),
                 ]
             ]);
         }

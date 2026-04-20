@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\Doctor;
+use App\Models\DoctorSubscription;
+use App\Models\DoctorTrialDay;
 class AuthController extends Controller
 {
     
@@ -23,10 +26,16 @@ class AuthController extends Controller
                 'password' => 'required|string|min:6'
             ]);
 
+            // Generate unique 8 digit registration number
+            do {
+                $patientId = random_int(10000000, 99999999);
+            } while (User::where('patient_id', $patientId)->exists());
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password)
+                'password' => Hash::make($request->password),
+                'patient_id' => $patientId
             ]);
 
             // ✅ assign role (only if exists)
@@ -76,6 +85,8 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'roles' => $user->getRoleNames(),
+                    'permissions' => $user->getAllPermissions()->pluck('name'),
+                    'subscription_status' => $this->getSubscriptionStatus($user),
                 ]
             ]);
 
@@ -113,8 +124,72 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+                'subscription_status' => $this->getSubscriptionStatus($user),
             ]
         ]);
+    }
+
+    /**
+     * Build subscription status payload for a user.
+     */
+    private function getSubscriptionStatus($user): array
+    {
+        $doctor = Doctor::where('user_id', $user->id)->first();
+
+        if (!$doctor) {
+            return [
+                'is_doctor' => false,
+                'has_access' => false,
+                'subscription' => null,
+                'trial' => null,
+                'days_remaining' => null,
+                'show_warning' => false,
+            ];
+        }
+
+        $activeSub = DoctorSubscription::where('doctor_id', $doctor->id)
+            ->where('status', 'active')
+            ->where('payment_status', 'verified')
+            ->where('end_date', '>=', now()->startOfDay())
+            ->latest('end_date')
+            ->first();
+
+        $activeTrial = DoctorTrialDay::where('doctor_id', $doctor->id)
+            ->where('end_date', '>=', now()->startOfDay())
+            ->latest('end_date')
+            ->first();
+
+        $hasAccess = $activeSub || $activeTrial;
+        $daysRemaining = null;
+        $expiryDate = null;
+
+        if ($activeSub) {
+            $daysRemaining = max(0, (int) now()->startOfDay()->diffInDays($activeSub->end_date, false));
+            $expiryDate = $activeSub->end_date->format('Y-m-d');
+        } elseif ($activeTrial) {
+            $daysRemaining = max(0, (int) now()->startOfDay()->diffInDays($activeTrial->end_date, false));
+            $expiryDate = $activeTrial->end_date->format('Y-m-d');
+        }
+
+        return [
+            'is_doctor' => true,
+            'has_access' => (bool) $hasAccess,
+            'days_remaining' => $daysRemaining,
+            'expiry_date' => $expiryDate,
+            'show_warning' => $daysRemaining !== null && $daysRemaining <= 7,
+            'is_trial' => !$activeSub && (bool) $activeTrial,
+            'subscription' => $activeSub ? [
+                'id' => $activeSub->id,
+                'package_name' => $activeSub->package?->name,
+                'end_date' => $activeSub->end_date->format('Y-m-d'),
+                'status' => $activeSub->status,
+            ] : null,
+            'trial' => $activeTrial ? [
+                'end_date' => $activeTrial->end_date->format('Y-m-d'),
+                'trial_days' => $activeTrial->trial_days,
+            ] : null,
+        ];
     }
 
     public function forgotPassword(Request $request)

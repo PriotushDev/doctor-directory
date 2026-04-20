@@ -117,7 +117,7 @@ class PrescriptionController extends Controller
 
             foreach ($request->medicines as $med) {
                 // Auto-save to medicines table if unique
-                Medicine::firstOrCreate(['name' => $med['medicine_name']]);
+                Medicine::firstOrCreate(['medicine_name' => $med['medicine_name']]);
 
                 PrescriptionMedicine::create([
                     'prescription_id' => $prescription->id,
@@ -182,7 +182,7 @@ class PrescriptionController extends Controller
                 // Delete old medicines and replace
                 $prescription->medicines()->delete();
                 foreach ($request->medicines as $med) {
-                    Medicine::firstOrCreate(['name' => $med['medicine_name']]);
+                    Medicine::firstOrCreate(['medicine_name' => $med['medicine_name']]);
 
                     PrescriptionMedicine::create([
                         'prescription_id' => $prescription->id,

@@ -53,7 +53,13 @@ class HospitalController extends Controller
 
     public function store(StoreHospitalRequest $request)
     {
-        $hospital = Hospital::create($request->validated());
+        $data = $request->validated();
+        
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')->store('hospitals', 'public');
+        }
+
+        $hospital = Hospital::create($data);
 
         return response()->json([
             'success' => true,
@@ -75,8 +81,19 @@ class HospitalController extends Controller
     public function update(UpdateHospitalRequest $request, $id)
     {
         $hospital = Hospital::findOrFail($id);
+        $data = $request->validated();
 
-        $hospital->update($request->validated());
+        if ($request->hasFile('photo')) {
+            if ($hospital->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($hospital->photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($hospital->photo);
+            }
+            $data['photo'] = $request->file('photo')->store('hospitals', 'public');
+        } elseif (isset($data['photo']) && is_string($data['photo'])) {
+            // Keep existing photo if string, or remove if needed... actually ignore string photo
+            unset($data['photo']);
+        }
+
+        $hospital->update($data);
 
         return response()->json([
             'success' => true,

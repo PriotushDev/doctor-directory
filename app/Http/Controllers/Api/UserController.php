@@ -6,6 +6,8 @@ use App\Services\UserService;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\UpdateUserRoleRequest;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller
 {
@@ -32,6 +34,25 @@ class UserController extends Controller
     {
         return new UserResource(
             $this->userService->updateRole($id, $request->role)
+        );
+    }
+
+    public function getPermissions()
+    {
+        // Return all available permissions in the system
+        return response()->json([
+            'data' => Permission::all()
+        ]);
+    }
+
+    public function syncPermissions(Request $request, $id)
+    {
+        $request->validate([
+            'permissions' => 'array'
+        ]);
+
+        return new UserResource(
+            $this->userService->syncPermissions($id, $request->permissions ?? [])
         );
     }
 

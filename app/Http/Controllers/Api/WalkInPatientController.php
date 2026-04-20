@@ -37,13 +37,19 @@ class WalkInPatientController extends Controller
         }
 
         $result = DB::transaction(function () use ($request, $doctor) {
-            // 1. Create User
-            $password = Str::random(8); // random password
+            // Generate unique 8 digit registration number
+            do {
+                $patientId = random_int(10000000, 99999999);
+            } while (User::where('patient_id', $patientId)->exists());
+
+            $password = \Illuminate\Support\Str::random(8); // random password
+
             $patient = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($password),
+                'patient_id' => $patientId,
                 'role' => 'user'
             ]);
 
