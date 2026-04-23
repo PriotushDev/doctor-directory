@@ -46,6 +46,20 @@ class DoctorRepository
             });
         }
 
+        // 📍 Filter by Upazila
+        if ($request->upazila_id) {
+            $query->whereHas('chambers.hospital', function ($q) use ($request) {
+                $q->where('upazila_id', $request->upazila_id);
+            });
+        }
+
+        // 📍 Filter by Union
+        if ($request->union_id) {
+            $query->whereHas('chambers.hospital', function ($q) use ($request) {
+                $q->where('union_id', $request->union_id);
+            });
+        }
+
         // 🌍 Filter by Division
         if ($request->division_id) {
             $query->whereHas('chambers.hospital.district', function ($q) use ($request) {

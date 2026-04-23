@@ -20,6 +20,16 @@ class PermissionSeeder extends Seeder
             'medicine.update',
             'medicine.delete',
             
+            'upazila.view',
+            'upazila.create',
+            'upazila.update',
+            'upazila.delete',
+
+            'union.view',
+            'union.create',
+            'union.update',
+            'union.delete',
+            
             'user.view',
             'user.update',
             'user.delete',

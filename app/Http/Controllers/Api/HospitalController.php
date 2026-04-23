@@ -37,6 +37,16 @@ class HospitalController extends Controller
             $query->where('district_id', $request->district_id);
         }
 
+        // 🔥 Upazila filter
+        if ($request->upazila_id) {
+            $query->where('upazila_id', $request->upazila_id);
+        }
+
+        // 🔥 Union filter
+        if ($request->union_id) {
+            $query->where('union_id', $request->union_id);
+        }
+
         // 🔥 Search
         if ($request->search) {
             $query->where('name', 'LIKE', '%' . $request->search . '%');

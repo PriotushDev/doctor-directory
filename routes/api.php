@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\DivisionController;
 use App\Http\Controllers\Api\DistrictController;
+use App\Http\Controllers\Api\UpazilaController;
+use App\Http\Controllers\Api\UnionController;
 use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\SpecialtyController;
 use App\Http\Controllers\Api\DoctorChamberController;
@@ -66,6 +68,22 @@ Route::get('/divisions/{id}', [DivisionController::class, 'show']);
 */
 Route::get('/districts', [DistrictController::class, 'index']);
 Route::get('/districts/{id}', [DistrictController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC UPAZILA ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::get('/upazilas', [UpazilaController::class, 'index']);
+Route::get('/upazilas/{id}', [UpazilaController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC UNION ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::get('/unions', [UnionController::class, 'index']);
+Route::get('/unions/{id}', [UnionController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
@@ -129,6 +147,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/districts', [DistrictController::class, 'store']);
     Route::put('/districts/{id}', [DistrictController::class, 'update']);
     Route::delete('/districts/{id}', [DistrictController::class, 'destroy']);
+
+    // Upazilas
+    Route::post('/upazilas', [UpazilaController::class, 'store']);
+    Route::put('/upazilas/{id}', [UpazilaController::class, 'update']);
+    Route::delete('/upazilas/{id}', [UpazilaController::class, 'destroy']);
+
+    // Unions
+    Route::post('/unions', [UnionController::class, 'store']);
+    Route::put('/unions/{id}', [UnionController::class, 'update']);
+    Route::delete('/unions/{id}', [UnionController::class, 'destroy']);
 
     // Hospitals
     Route::post('/hospitals', [HospitalController::class, 'store']);

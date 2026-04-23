@@ -11,6 +11,8 @@ class Hospital extends Model
     protected $fillable = [
         'name',
         'district_id',
+        'upazila_id',
+        'union_id',
         'address',
         'phone',
         'email',
@@ -42,6 +44,16 @@ class Hospital extends Model
     public function district()
     {
         return $this->belongsTo(District::class);
+    }
+
+    public function upazila()
+    {
+        return $this->belongsTo(Upazila::class);
+    }
+
+    public function union()
+    {
+        return $this->belongsTo(Union::class);
     }
 
     public function doctors()
